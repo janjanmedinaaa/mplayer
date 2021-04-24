@@ -7,13 +7,11 @@ import kotlinx.coroutines.launch
 import medina.juanantonio.mplayer.data.managers.DatabaseManager
 import medina.juanantonio.mplayer.data.models.VideoCard
 
-class MServer(
-    port: Int,
-    private val databaseManager: DatabaseManager
-) : NanoHTTPD(port) {
+class MServer(port: Int) : NanoHTTPD(port) {
 
     companion object {
         const val SAVE_MOVIE_URL = "/saveMovie"
+        const val REQUEST_PLAY_URL = "/requestPlay"
     }
 
     var mServerListener: MServerListener? = null
@@ -35,7 +33,7 @@ class MServer(
                             imageUrl = get("imageUrl")
                         }
 
-                        mServerListener?.onRequestReceived(videoCard)
+                        mServerListener?.onRequestReceived(session.uri, videoCard)
                     }
                 }
 
@@ -45,6 +43,28 @@ class MServer(
                     "Movie Save Request Sent!"
                 )
             }
+            session?.method == Method.POST
+                    && session.uri == REQUEST_PLAY_URL -> {
+
+                session.parseBody(HashMap<String, String>())
+                CoroutineScope(Dispatchers.Main).launch {
+                    session.parms?.run {
+                        if (isEmpty()) return@run
+
+                        val videoCard = VideoCard().apply {
+                            videoSources = listOf(get("source"))
+                        }
+
+                        mServerListener?.onRequestReceived(session.uri, videoCard)
+                    }
+                }
+
+                newFixedLengthResponse(
+                    Response.Status.OK,
+                    MIME_PLAINTEXT,
+                    "Movie Play Request Sent!"
+                )
+            }
             else -> {
                 newFixedLengthResponse(
                     "<html><body><h1>MPlayer Server Running</h1></body></html>"
@@ -52,15 +72,8 @@ class MServer(
             }
         }
     }
-
-    fun saveVideoCard(videoCard: VideoCard, onSaved: () -> Unit) {
-        CoroutineScope(Dispatchers.Main).launch {
-            databaseManager.addVideoCard(videoCard)
-            onSaved()
-        }
-    }
 }
 
 interface MServerListener {
-    fun onRequestReceived(videoCard: VideoCard?)
+    fun onRequestReceived(requestRoute: String, videoCard: VideoCard?)
 }

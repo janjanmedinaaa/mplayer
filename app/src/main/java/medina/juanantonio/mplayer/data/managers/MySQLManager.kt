@@ -103,7 +103,7 @@ class MySQLManager(
 
     @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
     private fun reCreateConnection() {
-        if (isConnected) return
+        if (isConnected || true) return
 
         mySQLConnection?.close()
         mySQLConnection = Connection(

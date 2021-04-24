@@ -32,19 +32,13 @@ class AppModule {
 
     @Provides
     @Singleton
-    fun provideMServer(databaseManager: DatabaseManager): MServer {
-        return MServer(8080, databaseManager)
+    fun provideMServer(): MServer {
+        return MServer(8080)
     }
 
     @Provides
     @Singleton
     fun provideMySQLManager(): MySQLManager {
-        return MySQLManager(
-            "remotemysql.com",
-            "3D6vaPpaBE",
-            "T3PFBvamtg",
-            3306,
-            "3D6vaPpaBE"
-        )
+        return MySQLManager("", "", "", 3306, "")
     }
 }

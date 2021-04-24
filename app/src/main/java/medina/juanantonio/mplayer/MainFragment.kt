@@ -33,6 +33,8 @@ import medina.juanantonio.mplayer.features.dialog.DialogFragment.Companion.ACTIO
 import medina.juanantonio.mplayer.features.media.MediaMetaData
 import medina.juanantonio.mplayer.features.media.VideoActivity
 import medina.juanantonio.mplayer.features.server.MServer
+import medina.juanantonio.mplayer.features.server.MServer.Companion.REQUEST_PLAY_URL
+import medina.juanantonio.mplayer.features.server.MServer.Companion.SAVE_MOVIE_URL
 import medina.juanantonio.mplayer.features.server.MServerListener
 import javax.inject.Inject
 
@@ -49,6 +51,7 @@ class MainFragment :
     private lateinit var mAdapter: ArrayObjectAdapter
     private lateinit var startForResultSaveVideo: ActivityResultLauncher<Intent>
     private lateinit var startForResultCloseApp: ActivityResultLauncher<Intent>
+    private lateinit var startForResultPlayVideo: ActivityResultLauncher<Intent>
     private var requestedVideoCard: VideoCard? = null
     private var onStartDelay = false
 
@@ -70,7 +73,8 @@ class MainFragment :
             when ("${it?.data?.data}".toLong()) {
                 ACTION_ID_POSITIVE -> {
                     requestedVideoCard?.let { videoCard ->
-                        mServer.saveVideoCard(videoCard) {
+                        CoroutineScope(Dispatchers.Main).launch {
+                            databaseManager.addVideoCard(videoCard)
                             updateList()
                         }
                     }
@@ -86,24 +90,52 @@ class MainFragment :
             }
         }
 
+        startForResultPlayVideo = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) {
+            when ("${it?.data?.data}".toLong()) {
+                ACTION_ID_POSITIVE -> {
+                    requestedVideoCard?.let { videoCard ->
+                        CoroutineScope(Dispatchers.Main).launch {
+                            delay(1000)
+                            playVideo(videoCard)
+                        }
+                    }
+                }
+            }
+        }
+
         setupRowAdapter()
         setupBackButtonCallback()
 
         return super.onCreateView(inflater, container, savedInstanceState)
     }
 
-    override fun onRequestReceived(videoCard: VideoCard?) {
+    override fun onRequestReceived(requestRoute: String, videoCard: VideoCard?) {
         requestedVideoCard = videoCard
-        val intent = requireContext().createDialogIntent(
-            title = getString(R.string.save_confirmation_title, videoCard?.title),
-            description = getString(
-                R.string.save_confirmation_description,
-                videoCard?.title
-            ),
-            positiveButton = getString(R.string.save)
-        )
-        val activityOptionsCompat = makeSceneTransitionAnimation(requireActivity())
-        startForResultSaveVideo.launch(intent, activityOptionsCompat)
+        when (requestRoute) {
+            SAVE_MOVIE_URL -> {
+                val intent = requireContext().createDialogIntent(
+                    title = getString(R.string.save_confirmation_title, videoCard?.title),
+                    description = getString(
+                        R.string.save_confirmation_description,
+                        videoCard?.title
+                    ),
+                    positiveButton = getString(R.string.save)
+                )
+                val activityOptionsCompat = makeSceneTransitionAnimation(requireActivity())
+                startForResultSaveVideo.launch(intent, activityOptionsCompat)
+            }
+            REQUEST_PLAY_URL -> {
+                val intent = requireContext().createDialogIntent(
+                    title = getString(R.string.request_play_confirmation_title),
+                    positiveButton = getString(R.string.play_video),
+                    negativeButton = getString(R.string.decline)
+                )
+                val activityOptionsCompat = makeSceneTransitionAnimation(requireActivity())
+                startForResultPlayVideo.launch(intent, activityOptionsCompat)
+            }
+        }
     }
 
     private fun setupRowAdapter() {
@@ -147,21 +179,7 @@ class MainFragment :
         row: Row?
     ) {
         if (item is VideoCard) {
-            val videoSources = item.videoSources
-            if (videoSources.isEmpty()) return
-
-            val metaData = MediaMetaData().apply {
-                mediaSourcePath = videoSources[0]
-                mediaTitle = item.title
-                mediaArtistName = item.description
-                mediaAlbumArtUrl = item.imageUrl
-            }
-            val intent = Intent(activity, VideoActivity::class.java).apply {
-                putExtra(VideoActivity.TAG, metaData)
-                data = Uri.parse(metaData.mediaSourcePath)
-            }
-            val bundle = makeSceneTransitionAnimation(requireActivity()).toBundle()
-            activity?.startActivity(intent, bundle)
+            playVideo(item)
         }
     }
 
@@ -176,6 +194,24 @@ class MainFragment :
             }
         }
         return false
+    }
+
+    private fun playVideo(videoCard: VideoCard) {
+        val videoSources = videoCard.videoSources
+        if (videoSources.isEmpty()) return
+
+        val metaData = MediaMetaData().apply {
+            mediaSourcePath = videoSources[0]
+            mediaTitle = videoCard.title
+            mediaArtistName = videoCard.description
+            mediaAlbumArtUrl = videoCard.imageUrl
+        }
+        val intent = Intent(activity, VideoActivity::class.java).apply {
+            putExtra(VideoActivity.TAG, metaData)
+            data = Uri.parse(metaData.mediaSourcePath)
+        }
+        val bundle = makeSceneTransitionAnimation(requireActivity()).toBundle()
+        activity?.startActivity(intent, bundle)
     }
 
     private fun setupBackButtonCallback() {

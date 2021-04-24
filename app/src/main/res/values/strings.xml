@@ -3,9 +3,12 @@
     <string name="title">MPlayer Videos</string>
 
     <string name="save">Save</string>
+    <string name="play_video">Play Video</string>
+    <string name="decline">Decline</string>
 
     <string name="save_confirmation_title">Save %s?</string>
     <string name="save_confirmation_description">This will save %s to your Android TV\'s local storage.</string>
     <string name="close_player_confirmation_title">Are you sure you want to close the player?</string>
     <string name="close_app_confirmation_title">Are you sure you want to close the application?</string>
+    <string name="request_play_confirmation_title">Someone requested to play a video. Continue?</string>
 </resources>

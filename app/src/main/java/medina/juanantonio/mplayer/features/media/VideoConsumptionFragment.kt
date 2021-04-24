@@ -19,11 +19,17 @@ import androidx.leanback.media.MediaPlayerAdapter
 import androidx.leanback.media.PlaybackGlue
 import androidx.leanback.widget.PlaybackControlsRow
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import medina.juanantonio.mplayer.R
 import medina.juanantonio.mplayer.common.extensions.createDialogIntent
+import medina.juanantonio.mplayer.data.managers.DatabaseManager
 import medina.juanantonio.mplayer.data.models.VideoCard
-import medina.juanantonio.mplayer.features.dialog.DialogFragment
+import medina.juanantonio.mplayer.features.dialog.DialogFragment.Companion.ACTION_ID_POSITIVE
 import medina.juanantonio.mplayer.features.server.MServer
+import medina.juanantonio.mplayer.features.server.MServer.Companion.REQUEST_PLAY_URL
+import medina.juanantonio.mplayer.features.server.MServer.Companion.SAVE_MOVIE_URL
 import medina.juanantonio.mplayer.features.server.MServerListener
 import javax.inject.Inject
 
@@ -37,10 +43,14 @@ class VideoConsumptionFragment : VideoSupportFragment(), MServerListener {
     private lateinit var mMediaPlayerGlue: VideoMediaPlayerGlue<MediaPlayerAdapter>
     private lateinit var startForResultSaveVideo: ActivityResultLauncher<Intent>
     private lateinit var startForResultClosePlayer: ActivityResultLauncher<Intent>
+    private lateinit var startForResultPlayVideo: ActivityResultLauncher<Intent>
     private var requestedVideoCard: VideoCard? = null
 
     @Inject
     lateinit var mServer: MServer
+
+    @Inject
+    lateinit var databaseManager: DatabaseManager
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -68,9 +78,11 @@ class VideoConsumptionFragment : VideoSupportFragment(), MServerListener {
             ActivityResultContracts.StartActivityForResult()
         ) {
             when ("${it?.data?.data}".toLong()) {
-                DialogFragment.ACTION_ID_POSITIVE -> {
+                ACTION_ID_POSITIVE -> {
                     requestedVideoCard?.let { videoCard ->
-                        mServer.saveVideoCard(videoCard) {}
+                        CoroutineScope(Dispatchers.IO).launch {
+                            databaseManager.addVideoCard(videoCard)
+                        }
                     }
                 }
             }
@@ -80,7 +92,20 @@ class VideoConsumptionFragment : VideoSupportFragment(), MServerListener {
             ActivityResultContracts.StartActivityForResult()
         ) {
             when ("${it?.data?.data}".toLong()) {
-                DialogFragment.ACTION_ID_POSITIVE -> activity?.finish()
+                ACTION_ID_POSITIVE -> activity?.finish()
+            }
+        }
+
+        startForResultPlayVideo = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) {
+            when ("${it?.data?.data}".toLong()) {
+                ACTION_ID_POSITIVE -> {
+                    requestedVideoCard?.let { videoCard ->
+                        activity?.finish()
+                        playVideo(videoCard)
+                    }
+                }
             }
         }
 
@@ -119,18 +144,31 @@ class VideoConsumptionFragment : VideoSupportFragment(), MServerListener {
         super.onPause()
     }
 
-    override fun onRequestReceived(videoCard: VideoCard?) {
+    override fun onRequestReceived(requestRoute: String, videoCard: VideoCard?) {
         requestedVideoCard = videoCard
-        val intent = requireContext().createDialogIntent(
-            title = getString(R.string.save_confirmation_title, videoCard?.title),
-            description = getString(
-                R.string.save_confirmation_description,
-                videoCard?.title
-            ),
-            positiveButton = getString(R.string.save)
-        )
-        val activityOptionsCompat = makeSceneTransitionAnimation(requireActivity())
-        startForResultSaveVideo.launch(intent, activityOptionsCompat)
+        when (requestRoute) {
+            SAVE_MOVIE_URL -> {
+                val intent = requireContext().createDialogIntent(
+                    title = getString(R.string.save_confirmation_title, videoCard?.title),
+                    description = getString(
+                        R.string.save_confirmation_description,
+                        videoCard?.title
+                    ),
+                    positiveButton = getString(R.string.save)
+                )
+                val activityOptionsCompat = makeSceneTransitionAnimation(requireActivity())
+                startForResultSaveVideo.launch(intent, activityOptionsCompat)
+            }
+            REQUEST_PLAY_URL -> {
+                val intent = requireContext().createDialogIntent(
+                    title = getString(R.string.request_play_confirmation_title),
+                    positiveButton = getString(R.string.play_video),
+                    negativeButton = getString(R.string.decline)
+                )
+                val activityOptionsCompat = makeSceneTransitionAnimation(requireActivity())
+                startForResultPlayVideo.launch(intent, activityOptionsCompat)
+            }
+        }
     }
 
     private fun playWhenReady(glue: PlaybackGlue) {
@@ -146,6 +184,24 @@ class VideoConsumptionFragment : VideoSupportFragment(), MServerListener {
                 }
             })
         }
+    }
+
+    private fun playVideo(videoCard: VideoCard) {
+        val videoSources = videoCard.videoSources
+        if (videoSources.isEmpty()) return
+
+        val metaData = MediaMetaData().apply {
+            mediaSourcePath = videoSources[0]
+            mediaTitle = videoCard.title
+            mediaArtistName = videoCard.description
+            mediaAlbumArtUrl = videoCard.imageUrl
+        }
+        val intent = Intent(activity, VideoActivity::class.java).apply {
+            putExtra(VideoActivity.TAG, metaData)
+            data = Uri.parse(metaData.mediaSourcePath)
+        }
+        val bundle = makeSceneTransitionAnimation(requireActivity()).toBundle()
+        activity?.startActivity(intent, bundle)
     }
 
     private fun setupBackButtonCallback() {
