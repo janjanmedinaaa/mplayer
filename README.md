@@ -1,0 +1,2 @@
+# MPlayer
+MPlayer is an Android TV App that uses the [Android Leanback Library](https://developer.android.com/training/tv/start/start) to view and play MP4 Videos. MPlayer runs a HTTP Server where you can add your favorite movies.
