@@ -17,12 +17,7 @@ package medina.juanantonio.mplayer.data.models;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 import androidx.room.TypeConverters;
-
-import com.google.gson.annotations.SerializedName;
-
-import java.lang.reflect.Array;
 import java.util.List;
-
 import medina.juanantonio.mplayer.data.database.dao.MPlayerTypeConverter;
 
 /**

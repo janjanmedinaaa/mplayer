@@ -10,7 +10,7 @@
         android:contentDescription="@null"
         android:scaleX="2.7"
         android:scaleY="2.7"
-        android:src="@drawable/ic_launcher_foreground"
+        android:src="@drawable/mplayer_icon"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintDimensionRatio="1"
         app:layout_constraintEnd_toEndOf="parent"

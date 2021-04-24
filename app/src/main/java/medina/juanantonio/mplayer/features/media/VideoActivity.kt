@@ -16,6 +16,8 @@ class VideoActivity : AppCompatActivity() {
         const val TAG = "VideoActivity"
     }
 
+    private var mServerListener: MServerListener? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_video)
@@ -28,8 +30,16 @@ class VideoActivity : AppCompatActivity() {
 
         supportFragmentManager.addFragmentOnAttachListener { _, fragment ->
             if (fragment is MServerListener) {
-                (application as MPlayerApplication).mServer.mServerListener = fragment
+                mServerListener = fragment
+                (application as MPlayerApplication).mServer.mServerListener = mServerListener
             }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        mServerListener?.let {
+            (application as MPlayerApplication).mServer.mServerListener = it
         }
     }
 

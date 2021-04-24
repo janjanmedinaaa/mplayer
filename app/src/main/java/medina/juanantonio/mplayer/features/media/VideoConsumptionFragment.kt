@@ -125,7 +125,7 @@ class VideoConsumptionFragment : VideoSupportFragment(), MServerListener {
             title = getString(R.string.save_confirmation_title, videoCard?.title),
             description = getString(
                 R.string.save_confirmation_description,
-                videoCard?.description
+                videoCard?.title
             ),
             positiveButton = getString(R.string.save)
         )

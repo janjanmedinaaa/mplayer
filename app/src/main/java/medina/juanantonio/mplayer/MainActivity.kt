@@ -3,15 +3,26 @@ package medina.juanantonio.mplayer
 import android.os.Bundle
 import android.view.KeyEvent
 import androidx.appcompat.app.AppCompatActivity
+import com.BoardiesITSolutions.AndroidMySQLConnector.MySQLRow
 import dagger.hilt.android.AndroidEntryPoint
 import medina.juanantonio.mplayer.common.extensions.mainFragment
+import medina.juanantonio.mplayer.data.managers.MySQLManager
 import medina.juanantonio.mplayer.features.server.MServerListener
+import javax.inject.Inject
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), MySQLManager.ConnectionListener {
+
+    private var mServerListener: MServerListener? = null
+
+    @Inject
+    lateinit var mySQLManager: MySQLManager
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        lifecycle.addObserver(mySQLManager)
+        mySQLManager.connectionListener = this
 
         supportFragmentManager.beginTransaction().run {
             add(R.id.mainFragment, MainFragment(), MainFragment.FRAGMENT_TAG)
@@ -20,8 +31,16 @@ class MainActivity : AppCompatActivity() {
 
         supportFragmentManager.addFragmentOnAttachListener { _, fragment ->
             if (fragment is MServerListener) {
-                (application as MPlayerApplication).mServer.mServerListener = fragment
+                mServerListener = fragment
+                (application as MPlayerApplication).mServer.mServerListener = mServerListener
             }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        mServerListener?.let {
+            (application as MPlayerApplication).mServer.mServerListener = it
         }
     }
 
@@ -37,5 +56,16 @@ class MainActivity : AppCompatActivity() {
 
         return supportFragmentManager.mainFragment().dispatchKeyEvent(event) ||
                 super.dispatchKeyEvent(event)
+    }
+
+    override fun onConnect() {
+        mySQLManager.executeQuery("SELECT * FROM movies") { resultSet, exception ->
+            if (exception != null) return@executeQuery
+
+            var row: MySQLRow?
+            while (resultSet?.nextRow.also { row = it } != null) {
+
+            }
+        }
     }
 }
