@@ -20,7 +20,11 @@ data class FEpisode(
         get() {
             return if (mTitle.isNotEmpty()) {
                 val splitTitle = mTitle.split(" - ")
-                "S${season}E$episode: ${splitTitle[1].trim()}"
+                if (splitTitle.size > 1) {
+                    "S${season}E$episode: ${splitTitle[1].trim()}"
+                } else {
+                    mTitle.removeSurrounding("n").trim()
+                }
             } else "No Title Available"
         }
 

@@ -18,7 +18,6 @@ package medina.juanantonio.mplayer.features.media;
 
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
-import android.util.Log;
 import android.util.SparseArray;
 
 import androidx.collection.LruCache;
@@ -71,7 +70,6 @@ public abstract class PlaybackSeekAsyncDataProvider extends PlaybackSeekDataProv
         @Override
         protected void onPostExecute(Bitmap bitmap) {
             mRequests.remove(mIndex);
-            Log.d(TAG, "thumb Loaded " + mIndex);
             if (mResultCallback != null) {
                 mCache.put(mIndex, bitmap);
                 mResultCallback.onThumbnailLoaded(bitmap, mIndex);

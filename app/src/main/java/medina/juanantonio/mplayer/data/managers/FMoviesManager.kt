@@ -311,11 +311,16 @@ class FMoviesManager(
             li.html() == "Streamtape"
         }?.attr("data-id")
         val seasons = document.select("ul.seasons > li")
-        val seasonIds = seasons.map { season ->
+        val seasonIds = arrayListOf<String>()
+        seasons.forEach { season ->
             val dataId = season.attr("data-id")
             val dataRanges = season.attr("data-ranges")
-            "${dataId}_${serverId}_${dataRanges}"
+            val ranges = dataRanges.split(",")
+            ranges.forEach { range ->
+                seasonIds.add("${dataId}_${serverId}_$range")
+            }
         }
+
         val seriesListMap = arrayListOf<FEpisode>()
         seasonIds.forEach { seasonId ->
             document.select("ul#${seasonId} > li > a").forEach anchors@{ anchor ->
@@ -327,7 +332,9 @@ class FMoviesManager(
                     sourceDataId = seasonId,
                     season = dataKNameSplit[0],
                     episode = dataKNameSplit[1],
-                    mTitle = anchor.attr("title"),
+                    mTitle = anchor.attr("title").let {
+                        if (it.isNotEmpty()) it else anchor.text()
+                    },
                     videoUrl = anchor.attr("href"),
                     imageUrl = fItem?.imageUrl ?: ""
                 )

@@ -2,7 +2,6 @@ package medina.juanantonio.mplayer.features.browse
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
@@ -144,7 +143,6 @@ class MainFragment :
     }
 
     override fun onSearchRequestReceived(query: String) {
-        Log.d("DEVELOP", "MAIN $query")
         if (viewModel.episodeListResults.value?.isEmpty() == false) return
         val intent = MovieSearchActivity.getIntent(requireActivity(), query)
         val bundle = makeSceneTransitionAnimation(requireActivity()).toBundle()

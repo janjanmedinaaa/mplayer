@@ -2,7 +2,6 @@ package medina.juanantonio.mplayer.features.search
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
@@ -109,7 +108,6 @@ class MovieSearchFragment :
     }
 
     override fun onSearchRequestReceived(query: String) {
-        Log.d("DEVELOP", "SEARCH $query")
         setSearchQuery(query, true)
     }
 

@@ -21,7 +21,6 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.util.Log;
 
 import androidx.leanback.media.PlaybackGlue;
 import androidx.leanback.media.PlaybackTransportControlGlue;
@@ -70,7 +69,6 @@ public class PlaybackSeekDiskDataProvider extends PlaybackSeekAsyncDataProvider 
                     .submit(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL)
                     .get();
         } catch (Exception ex) {
-            Log.d("DEVELOP", ex.getMessage());
             bmp = Bitmap.createBitmap(160, 160, Bitmap.Config.ARGB_8888);
             Canvas canvas = new Canvas(bmp);
             canvas.drawColor(Color.YELLOW);

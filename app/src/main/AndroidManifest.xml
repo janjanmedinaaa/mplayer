@@ -16,6 +16,7 @@
     <uses-feature
         android:name="android.hardware.touchscreen"
         android:required="false" />
+
     <uses-feature
         android:name="android.software.leanback"
         android:required="true" />
@@ -29,6 +30,7 @@
         android:largeHeap="true"
         android:supportsRtl="true"
         android:theme="@style/Theme.MPlayerLauncher">
+
         <activity
             android:name=".features.browse.MainActivity"
             android:exported="true"
@@ -41,6 +43,7 @@
                 <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
             android:name=".features.media.VideoActivity"
             android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation|layoutDirection"
@@ -50,14 +53,17 @@
             android:supportsPictureInPicture="true"
             android:theme="@style/Theme.MPlayer"
             tools:targetApi="n" />
+
         <activity
             android:name=".features.search.MovieSearchActivity"
             android:exported="true"
             android:screenOrientation="landscape" />
+
         <activity
             android:name=".features.webview.WebViewActivity"
             android:exported="true"
             android:screenOrientation="landscape" />
+
         <activity
             android:name=".features.dialog.DialogActivity"
             android:exported="true"
