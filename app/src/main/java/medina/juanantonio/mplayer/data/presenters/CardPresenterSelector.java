@@ -19,8 +19,7 @@ import android.content.Context;
 import androidx.leanback.widget.Presenter;
 import androidx.leanback.widget.PresenterSelector;
 import java.util.HashMap;
-import medina.juanantonio.mplayer.R;
-import medina.juanantonio.mplayer.data.models.Card;
+import medina.juanantonio.mplayer.data.models.FItem;
 
 /**
  * This PresenterSelector will decide what Presenter to use depending on a given card's type.
@@ -28,7 +27,7 @@ import medina.juanantonio.mplayer.data.models.Card;
 public class CardPresenterSelector extends PresenterSelector {
 
     private final Context mContext;
-    private final HashMap<Card.Type, Presenter> presenters = new HashMap<>();
+    private final HashMap<FItem.Type, Presenter> presenters = new HashMap<>();
 
     public CardPresenterSelector(Context context) {
         mContext = context;
@@ -36,19 +35,17 @@ public class CardPresenterSelector extends PresenterSelector {
 
     @Override
     public Presenter getPresenter(Object item) {
-        if (!(item instanceof Card)) throw new RuntimeException(
-                String.format("The PresenterSelector only supports data items of type '%s'",
-                        Card.class.getName()));
-        Card card = (Card) item;
-        Presenter presenter = presenters.get(card.getType());
+        if (!(item instanceof FItem)) throw new RuntimeException(
+                String.format("The PresenterSelector only supports data items of type '%s', is '%s'",
+                        FItem.class.getName(), item.getClass().getName()));
+        FItem fItem = (FItem) item;
+        Presenter presenter = presenters.get(fItem.getType());
         if (presenter == null) {
-            if (card.getType() == Card.Type.VIDEO_GRID) {
-                presenter = new VideoCardViewPresenter(mContext, R.style.VideoGridCardTheme);
-            } else {
-                presenter = new ImageCardViewPresenter(mContext);
+            if (fItem.getType() == FItem.Type.VIDEO_GRID) {
+                presenter = new VideoCardViewPresenter(mContext);
             }
         }
-        presenters.put(card.getType(), presenter);
+        presenters.put(fItem.getType(), presenter);
         return presenter;
     }
 }

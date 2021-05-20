@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="search_button_color">#6E6E6E</color>
+
+    <color name="progress_dialog_background">#2B2B2B</color>
+</resources>

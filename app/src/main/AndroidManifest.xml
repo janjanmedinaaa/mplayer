@@ -30,7 +30,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MPlayerLauncher">
         <activity
-            android:name=".MainActivity"
+            android:name=".features.browse.MainActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:screenOrientation="landscape"
@@ -50,6 +50,14 @@
             android:supportsPictureInPicture="true"
             android:theme="@style/Theme.MPlayer"
             tools:targetApi="n" />
+        <activity
+            android:name=".features.search.MovieSearchActivity"
+            android:exported="true"
+            android:screenOrientation="landscape" />
+        <activity
+            android:name=".features.webview.WebViewActivity"
+            android:exported="true"
+            android:screenOrientation="landscape" />
         <activity
             android:name=".features.dialog.DialogActivity"
             android:exported="true"

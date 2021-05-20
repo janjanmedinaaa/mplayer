@@ -1,22 +1,34 @@
 package medina.juanantonio.mplayer.features.media
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.FragmentActivity
 import dagger.hilt.android.AndroidEntryPoint
-import medina.juanantonio.mplayer.MPlayerApplication
 import medina.juanantonio.mplayer.R
-import medina.juanantonio.mplayer.features.server.MServerListener
+import medina.juanantonio.mplayer.data.models.FItem
 
 @AndroidEntryPoint
 class VideoActivity : AppCompatActivity() {
 
     companion object {
         const val TAG = "VideoActivity"
-    }
 
-    private var mServerListener: MServerListener? = null
+        fun getIntent(activity: FragmentActivity, fItem: FItem, videoUrl: String): Intent {
+            val metaData = MediaMetaData().apply {
+                mediaSourcePath = videoUrl
+                mediaTitle = fItem.title
+                mediaAlbumArtUrl = fItem.imageUrl
+            }
+
+            return Intent(activity, VideoActivity::class.java).apply {
+                putExtra(TAG, metaData)
+                data = Uri.parse(metaData.mediaSourcePath)
+            }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,20 +38,6 @@ class VideoActivity : AppCompatActivity() {
         supportFragmentManager.beginTransaction().run {
             add(R.id.videoFragment, VideoConsumptionFragment())
             commit()
-        }
-
-        supportFragmentManager.addFragmentOnAttachListener { _, fragment ->
-            if (fragment is MServerListener) {
-                mServerListener = fragment
-                (application as MPlayerApplication).mServer.mServerListener = mServerListener
-            }
-        }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        mServerListener?.let {
-            (application as MPlayerApplication).mServer.mServerListener = it
         }
     }
 

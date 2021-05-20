@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">MPlayer</string>
-    <string name="title">MPlayer Videos</string>
+    <string name="search_title">Results for: %s</string>
+    <string name="movies_title">Movies</string>
+    <string name="loading_video">Loading video…</string>
 
     <string name="save">Save</string>
     <string name="play_video">Play Video</string>
@@ -11,4 +13,12 @@
     <string name="close_player_confirmation_title">Are you sure you want to close the player?</string>
     <string name="close_app_confirmation_title">Are you sure you want to close the application?</string>
     <string name="request_play_confirmation_title">Someone requested to play a video. Continue?</string>
+    <string name="play_to_browser_title">Play %s on WebView?</string>
+    <string name="play_to_browser_confirmation_title">It looks like %s does not have an available Streamtape MP4 link. Would you like to play the movie from WebView?</string>
+
+    <string name="progress_look_up_info">Looking up info for %s…</string>
+    <string name="progress_look_up_url">Looking up %s…</string>
+    <string name="progress_get_mp4_link">Getting MP4 Link for %s…</string>
+    <string name="progress_scraping_mp4_link">Grabbing MP4 Link for %s…</string>
+    <string name="progress_scraping_url_for_info">Scraping %s for %s info…</string>
 </resources>

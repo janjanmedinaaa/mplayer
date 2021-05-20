@@ -16,6 +16,11 @@
 <resources>
     <style name="AppTheme" parent="@style/Theme.AppCompat.Leanback" />
 
+    <style name="MovieCardBadgeStyle" parent="Widget.Leanback.ImageCardView.BadgeStyle">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:scaleType">center</item>
+    </style>
+
     <!-- Grid card style. Used by Grid example. -->
     <style name="GridCardImageStyle" parent="Widget.Leanback.ImageCardView.ImageStyle">
         <item name="android:layout_width">@dimen/grid_card_width</item>
@@ -56,5 +61,47 @@
     <style name="DefaultCardTheme" parent="Theme.Leanback">
         <item name="imageCardViewStyle">@style/DefaultCardStyle</item>
         <item name="imageCardViewImageStyle">@style/DefaultCardImageStyle</item>
+    </style>
+
+    <!-- Movie Card Styles-->
+    <style name="MovieCardCompleteStyle" parent="MovieCardTitleOnlyStyle">
+        <item name="lbImageCardViewType">Title|Content|IconOnLeft</item>
+    </style>
+
+    <style name="MovieCardTitleOnlyStyle" parent="Widget.Leanback.ImageCardViewStyle">
+        <item name="lbImageCardViewType">Title</item>
+        <item name="cardBackground">@null</item>
+    </style>
+
+    <style name="MovieCardImageStyle" parent="Widget.Leanback.ImageCardView.ImageStyle">
+        <item name="android:layout_width">@dimen/movie_image_card_width</item>
+        <item name="android:layout_height">@dimen/movie_image_card_height</item>
+    </style>
+
+    <style name="MovieCardTitleTwoLineStyle" parent="Widget.Leanback.ImageCardView.TitleStyle">
+        <item name="android:maxLines">2</item>
+        <item name="android:minLines">2</item>
+    </style>
+
+    <style name="MovieCardContentStyle" parent="Widget.Leanback.ImageCardView.ContentStyle">
+        <item name="android:gravity">right</item>
+    </style>
+
+    <!-- Theme corresponding to the MovieCardCompleteStyle -->
+    <style name="MovieCardCompleteTheme" parent="Theme.Leanback">
+        <item name="imageCardViewStyle">@style/MovieCardCompleteStyle</item>
+        <item name="imageCardViewImageStyle">@style/MovieCardImageStyle</item>
+        <item name="imageCardViewTitleStyle">@style/MovieCardTitleTwoLineStyle</item>
+        <item name="imageCardViewBadgeStyle">@style/MovieCardBadgeStyle</item>
+        <item name="imageCardViewContentStyle">@style/MovieCardContentStyle</item>
+    </style>
+
+    <style name="MovieCardContentGoneStyle" parent="Widget.Leanback.ImageCardView.ContentStyle">
+        <item name="android:visibility">invisible</item>
+    </style>
+
+    <!-- Theme corresponding to the MovieCardBasicStyle -->
+    <style name="MovieCardBasicTheme" parent="MovieCardCompleteTheme">
+        <item name="imageCardViewContentStyle">@style/MovieCardContentGoneStyle</item>
     </style>
 </resources>

@@ -18,7 +18,7 @@ import android.view.ViewGroup;
 import androidx.leanback.widget.BaseCardView;
 import androidx.leanback.widget.Presenter;
 
-import medina.juanantonio.mplayer.data.models.Card;
+import medina.juanantonio.mplayer.data.models.FItem;
 
 /**
  * This abstract, generic class will create and manage the
@@ -51,8 +51,8 @@ public abstract class AbstractCardPresenter<T extends BaseCardView> extends Pres
 
     @Override
     public final void onBindViewHolder(ViewHolder viewHolder, Object item) {
-        Card card = (Card) item;
-        onBindViewHolder(card, (T) viewHolder.view);
+        FItem fItem = (FItem) item;
+        onBindViewHolder(fItem, (T) viewHolder.view);
     }
 
     @Override
@@ -74,9 +74,9 @@ public abstract class AbstractCardPresenter<T extends BaseCardView> extends Pres
     /**
      * Implement this method to update your card's view with the data bound to it.
      *
-     * @param card The model containing the data for the card.
+     * @param fItem The model containing the data for the card.
      * @param cardView The view the card is bound to.
      * @see Presenter#onBindViewHolder(ViewHolder, Object)
      */
-    public abstract void onBindViewHolder(Card card, T cardView);
+    public abstract void onBindViewHolder(FItem fItem, T cardView);
 }
