@@ -1,17 +1,17 @@
 package medina.juanantonio.mplayer.data.models
 
-import android.os.Parcelable
 import kotlinx.android.parcel.Parcelize
 
 @Parcelize
 data class FEpisode(
     val sourceDataId: String,
+    val backUpSourceId: String,
     val season: String,
     val episode: String,
     private val mTitle: String,
     override val videoUrl: String,
     override val imageUrl: String
-) : FItem, Parcelable {
+) : FItem, ParcelableFItem {
 
     override val type: FItem.Type
         get() = FItem.Type.VIDEO_GRID

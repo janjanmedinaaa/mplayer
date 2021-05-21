@@ -20,6 +20,7 @@ import medina.juanantonio.mplayer.common.extensions.createDialogIntent
 import medina.juanantonio.mplayer.data.models.FEpisode
 import medina.juanantonio.mplayer.data.models.FItem
 import medina.juanantonio.mplayer.data.models.FMovie
+import medina.juanantonio.mplayer.data.models.ParcelableFItem
 import medina.juanantonio.mplayer.data.presenters.CardPresenterSelector
 import medina.juanantonio.mplayer.features.browse.MainActivity
 import medina.juanantonio.mplayer.features.dialog.DialogFragment.Companion.ACTION_ID_POSITIVE
@@ -61,12 +62,15 @@ class MovieSearchFragment :
         ) {
             when ("${it?.data?.data}".toLongOrNull()) {
                 ACTION_ID_POSITIVE -> {
-                    val intent = WebViewActivity.getIntent(
-                        requireActivity(),
-                        viewModel.selectedFItem?.videoUrl ?: return@registerForActivityResult
-                    )
-                    val bundle = makeSceneTransitionAnimation(requireActivity()).toBundle()
-                    activity?.startActivity(intent, bundle)
+                    viewModel.selectedFItem?.let { fItem ->
+                        if (fItem is ParcelableFItem) {
+                            val intent = WebViewActivity.getIntent(
+                                requireActivity(),
+                                fItem
+                            )
+                            activity?.startActivity(intent)
+                        }
+                    }
                 }
             }
         }

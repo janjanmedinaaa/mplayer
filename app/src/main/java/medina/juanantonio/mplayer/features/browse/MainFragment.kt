@@ -61,11 +61,15 @@ class MainFragment :
         ) {
             when ("${it?.data?.data}".toLongOrNull()) {
                 ACTION_ID_POSITIVE -> {
-                    val intent = WebViewActivity.getIntent(
-                        requireActivity(),
-                        viewModel.selectedFItem?.videoUrl ?: return@registerForActivityResult
-                    )
-                    activity?.startActivity(intent)
+                    viewModel.selectedFItem?.let { fItem ->
+                        if (fItem is ParcelableFItem) {
+                            val intent = WebViewActivity.getIntent(
+                                requireActivity(),
+                                fItem
+                            )
+                            activity?.startActivity(intent)
+                        }
+                    }
                 }
             }
         }

@@ -121,10 +121,11 @@ class FMoviesManager(
         webView.loadUrl(requestUrl)
     }
 
-    fun playFromBrowser(videoUrl: String) {
+    fun playFromBrowser(parcelableFItem: ParcelableFItem) {
         displayToBrowser = true
+        fItem = parcelableFItem
         webView.stopLoading()
-        webView.loadUrl("$FMOVIES_BASE_URL$videoUrl")
+        webView.loadUrl("$FMOVIES_BASE_URL${parcelableFItem.videoUrl}")
     }
 
     fun stop() {
@@ -132,7 +133,7 @@ class FMoviesManager(
         CoroutineScope(Dispatchers.Main).launch {
             updateProgress(
                 ProgressStatus.PAGE_LOOKUP,
-                "Scraping cancelled..."
+                webView.context.getString(R.string.progress_scraping_cancelled)
             )
             delay(2000)
             fItem = null
@@ -200,12 +201,32 @@ class FMoviesManager(
                 displayToBrowser = true
                 webView.reload()
             }
-        } else {
-            webView.evaluateJavascript(
-                JSCommands.onlyShowIFramePlayer()
-            ) {
-                listener?.onWebViewPlayerReady()
+        } else fItem?.let {
+            if (it is FEpisode) {
+                webView.evaluateJavascript(
+                    JSCommands.clickEpisodeItem(it, true)
+                ) {
+                    CoroutineScope(Dispatchers.Main).launch {
+                        delay(1000)
+                        onlyShowIFrame()
+                    }
+                }
+            } else {
+                webView.evaluateJavascript(
+                    JSCommands.clickFirstMovieSource()
+                ) {
+                    onlyShowIFrame()
+                }
             }
+        }
+    }
+
+    private fun onlyShowIFrame() {
+        webView.evaluateJavascript(
+            JSCommands.onlyShowIFramePlayer()
+        ) {
+            fItem = null
+            listener?.onWebViewPlayerReady()
         }
     }
 
@@ -281,7 +302,7 @@ class FMoviesManager(
                     listener?.onMovieUrlReceived(it, null)
                     updateProgress(
                         ProgressStatus.PAGE_LOOKUP,
-                        "No valid Streamtape video available..."
+                        webView.context.getString(R.string.progress_no_streamtape_url)
                     )
                     delay(2000)
                     updateProgress(ProgressStatus.DONE)
@@ -305,24 +326,30 @@ class FMoviesManager(
         }
     }
 
-    // For Rescraping
     private fun handleSeriesFilm(document: Document) {
         val serverId = document.select("ul.servers > li").firstOrNull { li ->
             li.html() == "Streamtape"
         }?.attr("data-id")
+
+        val backUpServerId = document.select("ul.servers > li").firstOrNull { li ->
+            li.html() == "MyCloud"
+        }?.attr("data-id")
+
         val seasons = document.select("ul.seasons > li")
         val seasonIds = arrayListOf<String>()
+        val backUpSeasonIds = arrayListOf<String>()
         seasons.forEach { season ->
             val dataId = season.attr("data-id")
             val dataRanges = season.attr("data-ranges")
             val ranges = dataRanges.split(",")
             ranges.forEach { range ->
                 seasonIds.add("${dataId}_${serverId}_$range")
+                backUpSeasonIds.add("${dataId}_${backUpServerId}_$range")
             }
         }
 
         val seriesListMap = arrayListOf<FEpisode>()
-        seasonIds.forEach { seasonId ->
+        seasonIds.forEachIndexed { index, seasonId ->
             document.select("ul#${seasonId} > li > a").forEach anchors@{ anchor ->
                 val dataKName = anchor.attr("data-kname")
                 if (dataKName.isBlank()) return@anchors
@@ -330,6 +357,7 @@ class FMoviesManager(
                 val dataKNameSplit = dataKName.split(":")
                 val fEpisode = FEpisode(
                     sourceDataId = seasonId,
+                    backUpSourceId = backUpSeasonIds[index],
                     season = dataKNameSplit[0],
                     episode = dataKNameSplit[1],
                     mTitle = anchor.attr("title").let {
@@ -348,7 +376,7 @@ class FMoviesManager(
 
     private fun handleEpisodeFilm(fEpisode: FEpisode) {
         webView.evaluateJavascript(
-            JSCommands.clickEpisodeItem(fEpisode)
+            JSCommands.clickEpisodeItem(fEpisode, false)
         ) {
             CoroutineScope(Dispatchers.Main).launch {
                 delay(1000)

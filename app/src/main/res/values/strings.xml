@@ -21,4 +21,6 @@
     <string name="progress_get_mp4_link">Getting MP4 Link for %s…</string>
     <string name="progress_scraping_mp4_link">Grabbing MP4 Link for %s…</string>
     <string name="progress_scraping_url_for_info">Scraping %s for %s info…</string>
+    <string name="progress_scraping_cancelled">Scraping cancelled…</string>
+    <string name="progress_no_streamtape_url">No valid Streamtape video available…</string>
 </resources>

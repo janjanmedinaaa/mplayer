@@ -18,6 +18,13 @@ class JSCommands {
                     "})()"
         }
 
+        fun clickFirstMovieSource(): String {
+            return "javascript:(function(){" +
+                    "l=document.querySelectorAll('ul.episodes > li > a')[0];" +
+                    "l.click();" +
+                    "})()"
+        }
+
         fun onlyShowIFramePlayer(): String {
             return "javascript:(function(){" +
                     "h=document.getElementsByTagName('header')[0];" +
@@ -29,16 +36,22 @@ class JSCommands {
                     "k=document.getElementsByTagName('footer')[0];" +
                     "k.style=\"visibility:collapse\";" +
                     "l=document.querySelector('div#player > iframe[allow" +
-                    "=\"autoplay; fullscreen\"]'); l.style=\"position:fixed; " +
-                    "top:0; left:0; bottom:0; right:0; border:none; margin:0; " +
-                    "padding:0; overflow:hidden; z-index:999999; " +
+                    "=\"autoplay; fullscreen\"]'); " +
+                    "l.scrollIntoView();" +
+                    "l.click();" +
+                    "l.style=\"position:fixed; top:0; left:0; bottom:0; right:0; " +
+                    "border:none; margin:0; padding:0; overflow:hidden; z-index:999999; " +
                     "width:100%; height:100%;\";" +
                     "})()"
         }
 
-        fun clickEpisodeItem(fEpisode: FEpisode): String {
+        fun clickEpisodeItem(fEpisode: FEpisode, useBackUpSource: Boolean): String {
+            val sourceDataId =
+                if (useBackUpSource) fEpisode.backUpSourceId
+                else fEpisode.sourceDataId
+
             return "javascript:(function(){" +
-                    "l=document.getElementById('${fEpisode.sourceDataId}')" +
+                    "l=document.getElementById('$sourceDataId')" +
                     ".querySelector('li > a[data-kname=\"${fEpisode.season}:${fEpisode.episode}\"]');" +
                     "l.click();" +
                     "})()"
